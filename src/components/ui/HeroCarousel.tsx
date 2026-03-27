@@ -28,6 +28,7 @@ const carouselData = [
 export const HeroCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   // Preload all images into browser cache on first mount
   useEffect(() => {
@@ -35,19 +36,45 @@ export const HeroCarousel = () => {
       const img = new Image();
       img.src = slide.imageSrc;
     });
+    // After the entrance animation plays (~2.5s), mark first load done and start auto-play
+    const firstLoadTimer = setTimeout(() => setIsFirstLoad(false), 2500);
+    return () => clearTimeout(firstLoadTimer);
   }, []);
 
   useEffect(() => {
+    // Don't auto-play until the entrance animation finishes
+    if (isFirstLoad) return;
     const timer = setInterval(() => {
       setDirection(1);
       setCurrentIndex((prev) => (prev + 1) % carouselData.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [isFirstLoad]);
 
   const goToSlide = (index: number) => {
     setDirection(index > currentIndex ? 1 : -1);
     setCurrentIndex(index);
+  };
+
+  // Entrance animation — used only on very first render
+  const entranceVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        staggerChildren: 0.3,
+        delayChildren: 0.2,
+      }
+    }
+  };
+
+  const entranceItemVariants = {
+    hidden: { opacity: 0, y: 60, filter: "blur(16px)" },
+    visible: { 
+      opacity: 1, y: 0, filter: "blur(0px)", 
+      transition: { duration: 1.4, ease: [0.22, 1, 0.36, 1] } 
+    }
   };
 
   const slideVariants = {
@@ -81,19 +108,57 @@ export const HeroCarousel = () => {
     exit: { opacity: 0, y: -30, filter: "blur(12px)", transition: { duration: 0.5 } }
   };
 
+  // Use entrance variants on first load, normal item variants after
+  const activeItemVariants = isFirstLoad ? entranceItemVariants : itemVariants;
+
   const slide = carouselData[currentIndex];
 
   return (
     <div className="relative w-full overflow-hidden bg-white">
-      {/* 
-        DESKTOP: Full viewport height with absolute centered content
-        MOBILE: Natural flow layout with proper stacking 
-      */}
 
       {/* ── DESKTOP LAYOUT (md+) ── */}
       <div className="hidden md:flex relative min-h-[calc(100vh-80px)] min-h-[750px] flex-col justify-between">
         <div className="absolute inset-0 flex items-center justify-center p-8 lg:p-16">
-          <AnimatePresence initial={false} custom={direction} mode="wait">
+          {isFirstLoad ? (
+            /* First load: entrance animation plays staggered items */
+            <motion.div
+              variants={entranceVariants}
+              initial="hidden"
+              animate="visible"
+              className="w-full max-w-7xl mx-auto grid grid-cols-[1fr_auto_1fr] items-center gap-6 lg:gap-12"
+            >
+              {/* Left Text */}
+              <div className="z-20 text-left flex flex-col justify-center h-full">
+                <motion.p variants={entranceItemVariants} className="max-w-[280px] lg:max-w-sm text-base lg:text-lg leading-relaxed text-foreground/80 font-medium">
+                  {slide.mainText}
+                </motion.p>
+                <motion.a variants={entranceItemVariants} href="/about" className="mt-8 inline-block text-sm font-bold text-[#111] uppercase tracking-wider hover:text-[#CC2B2B] transition-colors underline decoration-2 underline-offset-4 decoration-[#CC2B2B]/40 hover:decoration-[#CC2B2B] w-max">
+                  Read More
+                </motion.a>
+              </div>
+
+              {/* Center Image */}
+              <div className="relative flex justify-center items-center w-[400px] lg:w-[480px] min-h-[480px]">
+                <motion.div
+                  variants={entranceItemVariants}
+                  className={`absolute z-0 h-[400px] w-[400px] lg:h-[500px] lg:w-[500px] rounded-full shadow-2xl transition-colors duration-1000 ${slide.circleColor}`}
+                />
+                <motion.div variants={entranceItemVariants} className="relative z-10 w-72 lg:w-80 aspect-square">
+                  <img src={slide.imageSrc} alt="Digital Marketing" className="w-full h-full object-cover rounded-full border-[10px] border-white shadow-2xl scale-125 hover:scale-[1.3] transition-transform duration-1000 ease-out" />
+                </motion.div>
+              </div>
+
+              {/* Right Text */}
+              <motion.div variants={entranceItemVariants} className="z-20 flex items-center justify-start h-full">
+                <h1 className="text-[80px] lg:text-[120px] font-black text-[#111] tracking-tighter leading-[0.85] text-left">
+                  {slide.overlayText.part1}<br />
+                  <span className="text-[#CC2B2B]">{slide.overlayText.part2}</span>
+                </h1>
+              </motion.div>
+            </motion.div>
+          ) : (
+            /* After first load: normal carousel transitions */
+            <AnimatePresence initial={false} custom={direction} mode="wait">
             <motion.div
               key={`desktop-${currentIndex}`}
               custom={direction}
@@ -138,6 +203,7 @@ export const HeroCarousel = () => {
               </motion.div>
             </motion.div>
           </AnimatePresence>
+          )}
         </div>
 
         {/* Desktop Dots */}
@@ -169,50 +235,64 @@ export const HeroCarousel = () => {
 
       {/* ── MOBILE LAYOUT (below md) ── */}
       <div className="md:hidden flex flex-col items-center px-6 pt-4 pb-6">
-        <AnimatePresence initial={false} custom={direction} mode="wait">
+        {isFirstLoad ? (
           <motion.div
-            key={`mobile-${currentIndex}`}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
+            variants={entranceVariants}
+            initial="hidden"
+            animate="visible"
             className="flex flex-col items-center w-full"
           >
-            {/* Circle + Image */}
             <div className="relative flex justify-center items-center w-full min-h-[240px] mb-4">
-              <motion.div
-                variants={itemVariants}
-                className={`absolute z-0 h-[230px] w-[230px] rounded-full shadow-xl transition-colors duration-1000 ${slide.circleColor}`}
-              />
-              <motion.div variants={itemVariants} className="relative z-10 w-44 aspect-square">
-                <img
-                  src={slide.imageSrc}
-                  alt="Digital Marketing"
-                  className="w-full h-full object-cover rounded-full border-[5px] border-white shadow-2xl scale-110"
-                />
+              <motion.div variants={entranceItemVariants} className={`absolute z-0 h-[230px] w-[230px] rounded-full shadow-xl transition-colors duration-1000 ${slide.circleColor}`} />
+              <motion.div variants={entranceItemVariants} className="relative z-10 w-44 aspect-square">
+                <img src={slide.imageSrc} alt="Digital Marketing" className="w-full h-full object-cover rounded-full border-[5px] border-white shadow-2xl scale-110" />
               </motion.div>
             </div>
-
-            {/* Text */}
-            <motion.p variants={itemVariants} className="text-center text-sm leading-relaxed text-foreground/80 font-medium max-w-[300px] mb-4">
+            <motion.p variants={entranceItemVariants} className="text-center text-sm leading-relaxed text-foreground/80 font-medium max-w-[300px] mb-4">
               {slide.mainText}
             </motion.p>
-
-            <motion.a variants={itemVariants} href="/about" className="text-xs font-bold text-[#111] uppercase tracking-wider hover:text-[#CC2B2B] transition-colors underline decoration-2 underline-offset-4 decoration-[#CC2B2B]/40 mb-4">
+            <motion.a variants={entranceItemVariants} href="/about" className="text-xs font-bold text-[#111] uppercase tracking-wider underline decoration-2 underline-offset-4 decoration-[#CC2B2B]/40 mb-4">
               Read More
             </motion.a>
-
-            {/* Big Text */}
-            <motion.div variants={itemVariants} className="text-center mb-2">
+            <motion.div variants={entranceItemVariants} className="text-center mb-2">
               <h1 className="text-5xl font-black text-[#111] tracking-tighter leading-[0.85]">
-                {slide.overlayText.part1}
-                <br />
+                {slide.overlayText.part1}<br />
                 <span className="text-[#CC2B2B]">{slide.overlayText.part2}</span>
               </h1>
             </motion.div>
           </motion.div>
-        </AnimatePresence>
+        ) : (
+          <AnimatePresence initial={false} custom={direction} mode="wait">
+            <motion.div
+              key={`mobile-${currentIndex}`}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              className="flex flex-col items-center w-full"
+            >
+              <div className="relative flex justify-center items-center w-full min-h-[240px] mb-4">
+                <motion.div variants={itemVariants} className={`absolute z-0 h-[230px] w-[230px] rounded-full shadow-xl transition-colors duration-1000 ${slide.circleColor}`} />
+                <motion.div variants={itemVariants} className="relative z-10 w-44 aspect-square">
+                  <img src={slide.imageSrc} alt="Digital Marketing" className="w-full h-full object-cover rounded-full border-[5px] border-white shadow-2xl scale-110" />
+                </motion.div>
+              </div>
+              <motion.p variants={itemVariants} className="text-center text-sm leading-relaxed text-foreground/80 font-medium max-w-[300px] mb-4">
+                {slide.mainText}
+              </motion.p>
+              <motion.a variants={itemVariants} href="/about" className="text-xs font-bold text-[#111] uppercase tracking-wider underline decoration-2 underline-offset-4 decoration-[#CC2B2B]/40 mb-4">
+                Read More
+              </motion.a>
+              <motion.div variants={itemVariants} className="text-center mb-2">
+                <h1 className="text-5xl font-black text-[#111] tracking-tighter leading-[0.85]">
+                  {slide.overlayText.part1}<br />
+                  <span className="text-[#CC2B2B]">{slide.overlayText.part2}</span>
+                </h1>
+              </motion.div>
+            </motion.div>
+          </AnimatePresence>
+        )}
 
         {/* Mobile Dots — always below content, never overlapping */}
         <div className="flex justify-center items-center space-x-3 mt-5">
