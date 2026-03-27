@@ -75,12 +75,14 @@ export function BackgroundPaths({
                 >
                     <h2 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-12 tracking-tighter leading-tight">
                         {words.map((word, wordIndex) => {
+                            const isLast = wordIndex === words.length - 1;
                             const isPurpose = word.toUpperCase().includes("PURPOSE");
+                            const isBlue = isLast && isPurpose;
                             return (
                                 <span
                                     key={wordIndex}
                                     className={`inline-block mx-[0.2em] md:mx-[0.25em] ${
-                                        isPurpose ? "text-[#3b82f6]" : "text-[#111]"
+                                        isBlue ? "text-[#3b82f6]" : "text-[#111]"
                                     }`}
                                 >
                                     {word.split("").map((letter, letterIndex) => (
