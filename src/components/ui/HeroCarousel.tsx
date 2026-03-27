@@ -168,7 +168,7 @@ export const HeroCarousel = () => {
       </div>
 
       {/* ── MOBILE LAYOUT (below md) ── */}
-      <div className="md:hidden flex flex-col items-center px-6 py-10 pb-8">
+      <div className="md:hidden flex flex-col items-center px-6 pt-4 pb-6">
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={`mobile-${currentIndex}`}
@@ -180,16 +180,16 @@ export const HeroCarousel = () => {
             className="flex flex-col items-center w-full"
           >
             {/* Circle + Image */}
-            <div className="relative flex justify-center items-center w-full min-h-[280px] mb-6">
+            <div className="relative flex justify-center items-center w-full min-h-[240px] mb-4">
               <motion.div
                 variants={itemVariants}
-                className={`absolute z-0 h-[260px] w-[260px] rounded-full shadow-xl transition-colors duration-1000 ${slide.circleColor}`}
+                className={`absolute z-0 h-[230px] w-[230px] rounded-full shadow-xl transition-colors duration-1000 ${slide.circleColor}`}
               />
-              <motion.div variants={itemVariants} className="relative z-10 w-48 aspect-square">
+              <motion.div variants={itemVariants} className="relative z-10 w-44 aspect-square">
                 <img
                   src={slide.imageSrc}
                   alt="Digital Marketing"
-                  className="w-full h-full object-cover rounded-full border-[6px] border-white shadow-2xl scale-110"
+                  className="w-full h-full object-cover rounded-full border-[5px] border-white shadow-2xl scale-110"
                 />
               </motion.div>
             </div>
@@ -199,7 +199,7 @@ export const HeroCarousel = () => {
               {slide.mainText}
             </motion.p>
 
-            <motion.a variants={itemVariants} href="/about" className="text-xs font-bold text-[#111] uppercase tracking-wider hover:text-[#CC2B2B] transition-colors underline decoration-2 underline-offset-4 decoration-[#CC2B2B]/40 mb-6">
+            <motion.a variants={itemVariants} href="/about" className="text-xs font-bold text-[#111] uppercase tracking-wider hover:text-[#CC2B2B] transition-colors underline decoration-2 underline-offset-4 decoration-[#CC2B2B]/40 mb-4">
               Read More
             </motion.a>
 
@@ -215,7 +215,7 @@ export const HeroCarousel = () => {
         </AnimatePresence>
 
         {/* Mobile Dots — always below content, never overlapping */}
-        <div className="flex justify-center items-center space-x-3 mt-8">
+        <div className="flex justify-center items-center space-x-3 mt-5">
           {carouselData.map((_, index) => {
             const isActive = index === currentIndex;
             return (
