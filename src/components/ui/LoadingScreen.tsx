@@ -31,38 +31,37 @@ interface LoadingScreenProps {
 
 export const LoadingScreen = ({ children }: LoadingScreenProps) => {
   const [showLoader, setShowLoader] = useState(true);
-  const [exiting, setExiting] = useState(false);
+  const [contentReady, setContentReady] = useState(false);
   const imagesReady = useRef(false);
 
   useEffect(() => {
-    // Start preloading images immediately
     preloadImages(PRELOAD_IMAGES).then(() => {
       imagesReady.current = true;
     });
 
-    // After the typing animation finishes (~2s), start exit
-    const typingDuration = (BRAND_LINE_1.length + BRAND_LINE_2.length) * 60 + 600;
+    // Typing animation takes ~2s, then hold for 0.5s
+    const typingDuration = (BRAND_LINE_1.length + BRAND_LINE_2.length) * 60 + 800;
 
     const exitTimer = setTimeout(() => {
-      // If images loaded, exit. Otherwise wait a bit more.
-      const tryExit = () => {
-        setExiting(true);
-        setTimeout(() => setShowLoader(false), 900);
+      const doExit = () => {
+        // Step 1: Start fading out the loader (takes 1s)
+        setShowLoader(false);
+        // Step 2: After loader is fully gone, reveal the page content
+        setTimeout(() => setContentReady(true), 400);
       };
 
       if (imagesReady.current) {
-        tryExit();
+        doExit();
       } else {
-        // Give images 1 more second then exit anyway
-        setTimeout(tryExit, 1000);
+        setTimeout(doExit, 1000);
       }
     }, typingDuration);
 
-    // Hard safety: never block more than 4.5s total
+    // Safety: never block more than 5s
     const safety = setTimeout(() => {
-      setExiting(true);
-      setTimeout(() => setShowLoader(false), 600);
-    }, 4500);
+      setShowLoader(false);
+      setTimeout(() => setContentReady(true), 300);
+    }, 5000);
 
     return () => {
       clearTimeout(exitTimer);
@@ -72,21 +71,18 @@ export const LoadingScreen = ({ children }: LoadingScreenProps) => {
 
   return (
     <>
+      {/* ── LOADER OVERLAY ── */}
       <AnimatePresence>
         {showLoader && (
           <motion.div
             key="loader"
-            initial={{ opacity: 1 }}
-            animate={
-              exiting
-                ? { opacity: 0, filter: "blur(20px)", scale: 1.05 }
-                : { opacity: 1, filter: "blur(0px)", scale: 1 }
-            }
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            exit={{
+              opacity: 0,
+              transition: { duration: 1, ease: [0.22, 1, 0.36, 1] },
+            }}
             className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white"
           >
-            {/* Line 1: TRIPURA — typed letter by letter with blur-to-sharp */}
+            {/* Line 1: TRIPURA */}
             <div className="flex overflow-hidden mb-1">
               {BRAND_LINE_1.split("").map((char, i) => (
                 <motion.span
@@ -105,7 +101,7 @@ export const LoadingScreen = ({ children }: LoadingScreenProps) => {
               ))}
             </div>
 
-            {/* Line 2: DIGITAL TECHNOLOGIES — typed after line 1 with blur-to-sharp */}
+            {/* Line 2: DIGITAL TECHNOLOGIES */}
             <div className="flex overflow-hidden">
               {BRAND_LINE_2.split("").map((char, i) => (
                 <motion.span
@@ -124,7 +120,7 @@ export const LoadingScreen = ({ children }: LoadingScreenProps) => {
               ))}
             </div>
 
-            {/* Accent line that draws in */}
+            {/* Red accent line */}
             <motion.div
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
@@ -139,18 +135,18 @@ export const LoadingScreen = ({ children }: LoadingScreenProps) => {
         )}
       </AnimatePresence>
 
-      {/* Main content — slides up from bottom with blur-to-sharp after loader */}
+      {/* ── PAGE CONTENT ── */}
+      {/* Starts hidden, then slowly rises from below with blur-to-sharp */}
       <motion.div
-        initial={{ opacity: 0, y: 60, filter: "blur(10px)" }}
+        initial={{ opacity: 0, y: 80 }}
         animate={
-          showLoader
-            ? { opacity: 0, y: 60, filter: "blur(10px)" }
-            : { opacity: 1, y: 0, filter: "blur(0px)" }
+          contentReady
+            ? { opacity: 1, y: 0 }
+            : { opacity: 0, y: 80 }
         }
         transition={{
-          duration: 1.2,
-          ease: [0.22, 1, 0.36, 1],
-          delay: showLoader ? 0 : 0.1,
+          duration: 1.6,
+          ease: [0.16, 1, 0.3, 1],
         }}
       >
         {children}
