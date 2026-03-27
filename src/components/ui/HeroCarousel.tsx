@@ -25,8 +25,6 @@ const carouselData = [
   }
 ];
 
-// Removed social icons as per user request
-
 export const HeroCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
@@ -77,52 +75,129 @@ export const HeroCarousel = () => {
 
   const slide = carouselData[currentIndex];
 
-  // Social links removed
-
   return (
-    <div 
-      className="relative w-full overflow-hidden bg-white min-h-[calc(100vh-80px)] min-h-[850px] flex flex-col justify-between"
-    >
-      {/* Absolute positioning container for the slides perfectly centered */}
-      <div className="absolute inset-0 flex items-center justify-center p-8 lg:p-16">
+    <div className="relative w-full overflow-hidden bg-white">
+      {/* 
+        DESKTOP: Full viewport height with absolute centered content
+        MOBILE: Natural flow layout with proper stacking 
+      */}
+
+      {/* ── DESKTOP LAYOUT (md+) ── */}
+      <div className="hidden md:flex relative min-h-[calc(100vh-80px)] min-h-[750px] flex-col justify-between">
+        <div className="absolute inset-0 flex items-center justify-center p-8 lg:p-16">
+          <AnimatePresence initial={false} custom={direction} mode="wait">
+            <motion.div
+              key={`desktop-${currentIndex}`}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              className="w-full max-w-7xl mx-auto grid grid-cols-[1fr_auto_1fr] items-center gap-6 lg:gap-12"
+            >
+              {/* Left Text */}
+              <div className="z-20 text-left flex flex-col justify-center h-full">
+                <motion.p variants={itemVariants} className="max-w-[280px] lg:max-w-sm text-base lg:text-lg leading-relaxed text-foreground/80 font-medium">
+                  {slide.mainText}
+                </motion.p>
+                <motion.a variants={itemVariants} href="/about" className="mt-8 inline-block text-sm font-bold text-[#111] uppercase tracking-wider hover:text-[#CC2B2B] transition-colors underline decoration-2 underline-offset-4 decoration-[#CC2B2B]/40 hover:decoration-[#CC2B2B] w-max">
+                  Read More
+                </motion.a>
+              </div>
+
+              {/* Center Image */}
+              <div className="relative flex justify-center items-center w-[400px] lg:w-[480px] min-h-[480px]">
+                <motion.div
+                  variants={itemVariants}
+                  className={`absolute z-0 h-[400px] w-[400px] lg:h-[500px] lg:w-[500px] rounded-full shadow-2xl transition-colors duration-1000 ${slide.circleColor}`}
+                />
+                <motion.div variants={itemVariants} className="relative z-10 w-72 lg:w-80 aspect-square">
+                  <img
+                    src={slide.imageSrc}
+                    alt="Digital Marketing"
+                    className="w-full h-full object-cover rounded-full border-[10px] border-white shadow-2xl scale-125 hover:scale-[1.3] transition-transform duration-1000 ease-out"
+                  />
+                </motion.div>
+              </div>
+
+              {/* Right Text */}
+              <motion.div variants={itemVariants} className="z-20 flex items-center justify-start h-full">
+                <h1 className="text-[80px] lg:text-[120px] font-black text-[#111] tracking-tighter leading-[0.85] text-left">
+                  {slide.overlayText.part1}
+                  <br />
+                  <span className="text-[#CC2B2B]">{slide.overlayText.part2}</span>
+                </h1>
+              </motion.div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Desktop Dots */}
+        <div className="absolute bottom-12 left-0 right-0 z-50 flex justify-center items-center space-x-4">
+          {carouselData.map((_, index) => {
+            const isActive = index === currentIndex;
+            return (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`transition-all duration-500 rounded-full ${
+                  isActive 
+                    ? "w-14 h-4 bg-[#111]" 
+                    : "w-4 h-4 bg-slate-200 hover:bg-slate-400 border border-slate-300"
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            );
+          })}
+        </div>
+
+        {/* Desktop Footer */}
+        <footer className="absolute bottom-4 left-0 right-0 z-40 px-8 lg:px-16 flex w-full items-center justify-end pointer-events-none">
+          <div className="text-sm font-bold text-[#111] tracking-[0.2em] uppercase">
+            TRIPURA, INDIA
+          </div>
+        </footer>
+      </div>
+
+      {/* ── MOBILE LAYOUT (below md) ── */}
+      <div className="md:hidden flex flex-col items-center px-6 py-10 pb-8">
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
-            key={currentIndex}
+            key={`mobile-${currentIndex}`}
             custom={direction}
             variants={slideVariants}
             initial="enter"
             animate="center"
             exit="exit"
-            className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-6 lg:gap-12 pt-12 md:pt-0"
+            className="flex flex-col items-center w-full"
           >
-            {/* Left Text Content */}
-            <div className="z-20 order-2 md:order-1 text-center md:text-left flex flex-col justify-center h-full pt-8 md:pt-0">
-              <motion.p variants={itemVariants} className="mx-auto max-w-[280px] lg:max-w-sm text-base lg:text-lg leading-relaxed text-foreground/80 md:mx-0 font-medium">
-                {slide.mainText}
-              </motion.p>
-              <motion.a variants={itemVariants} href="/about" className="mt-8 inline-block text-sm font-bold text-[#111] uppercase tracking-wider hover:text-[#CC2B2B] transition-colors underline decoration-2 underline-offset-4 decoration-[#CC2B2B]/40 hover:decoration-[#CC2B2B] w-max mx-auto md:mx-0">
-                Read More
-              </motion.a>
-            </div>
-
-            {/* Center Image with Circle */}
-            <div className="relative order-1 md:order-2 flex justify-center items-center py-6 md:py-0 w-full md:w-[400px] lg:w-[480px] mx-auto min-h-[350px] md:min-h-[480px]">
+            {/* Circle + Image */}
+            <div className="relative flex justify-center items-center w-full min-h-[280px] mb-6">
               <motion.div
-                 variants={itemVariants}
-                 className={`absolute z-0 h-[300px] w-[300px] rounded-full shadow-2xl md:h-[400px] md:w-[400px] lg:h-[500px] lg:w-[500px] transition-colors duration-1000 ${slide.circleColor}`}
+                variants={itemVariants}
+                className={`absolute z-0 h-[260px] w-[260px] rounded-full shadow-xl transition-colors duration-1000 ${slide.circleColor}`}
               />
-              <motion.div variants={itemVariants} className="relative z-10 w-56 md:w-72 lg:w-80 aspect-square">
+              <motion.div variants={itemVariants} className="relative z-10 w-48 aspect-square">
                 <img
-                   src={slide.imageSrc}
-                   alt="Digital Marketing Highlight"
-                   className="w-full h-full object-cover rounded-full border-[6px] md:border-[10px] border-white shadow-2xl scale-125 hover:scale-[1.3] transition-transform duration-1000 ease-out"
+                  src={slide.imageSrc}
+                  alt="Digital Marketing"
+                  className="w-full h-full object-cover rounded-full border-[6px] border-white shadow-2xl scale-110"
                 />
               </motion.div>
             </div>
 
-            {/* Right Text */}
-            <motion.div variants={itemVariants} className="z-20 order-3 flex items-center justify-center text-center md:justify-start h-full">
-              <h1 className="text-6xl sm:text-7xl md:text-[80px] lg:text-[120px] font-black text-[#111] tracking-tighter leading-[0.85] text-center md:text-left">
+            {/* Text */}
+            <motion.p variants={itemVariants} className="text-center text-sm leading-relaxed text-foreground/80 font-medium max-w-[300px] mb-4">
+              {slide.mainText}
+            </motion.p>
+
+            <motion.a variants={itemVariants} href="/about" className="text-xs font-bold text-[#111] uppercase tracking-wider hover:text-[#CC2B2B] transition-colors underline decoration-2 underline-offset-4 decoration-[#CC2B2B]/40 mb-6">
+              Read More
+            </motion.a>
+
+            {/* Big Text */}
+            <motion.div variants={itemVariants} className="text-center mb-2">
+              <h1 className="text-5xl font-black text-[#111] tracking-tighter leading-[0.85]">
                 {slide.overlayText.part1}
                 <br />
                 <span className="text-[#CC2B2B]">{slide.overlayText.part2}</span>
@@ -130,36 +205,31 @@ export const HeroCarousel = () => {
             </motion.div>
           </motion.div>
         </AnimatePresence>
-      </div>
 
-      {/* Pagination Dots (Bottom Center) - Fixed z-[50] to always be clickable */}
-      <div className="absolute bottom-16 left-0 right-0 z-50 flex justify-center items-center space-x-4">
-        {carouselData.map((_, index) => {
-          const isActive = index === currentIndex;
-          return (
-            <button
-              key={index}
-              onClick={() => goToSlide(index)}
-              className={`transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] rounded-full ${
-                isActive 
-                  ? "w-14 h-4 bg-[#111]" 
-                  : "w-4 h-4 bg-slate-200 hover:bg-slate-400 border border-slate-300"
-              }`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          );
-        })}
-      </div>
-
-      {/* Footer Elements inside Hero (Location) */}
-      <footer className="absolute bottom-6 left-0 right-0 z-40 px-8 lg:px-16 flex w-full items-center justify-between pointer-events-none">
-        <div className="flex items-center space-x-6 pointer-events-auto">
-          {/* Social Links Removed */}
+        {/* Mobile Dots — always below content, never overlapping */}
+        <div className="flex justify-center items-center space-x-3 mt-8">
+          {carouselData.map((_, index) => {
+            const isActive = index === currentIndex;
+            return (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`transition-all duration-500 rounded-full ${
+                  isActive 
+                    ? "w-10 h-3 bg-[#111]" 
+                    : "w-3 h-3 bg-slate-200 hover:bg-slate-400 border border-slate-300"
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            );
+          })}
         </div>
-        <div className="text-sm font-bold text-[#111] tracking-[0.2em] uppercase">
+
+        {/* Mobile Location */}
+        <div className="text-xs font-bold text-[#111]/60 tracking-[0.2em] uppercase mt-4">
           TRIPURA, INDIA
         </div>
-      </footer>
+      </div>
     </div>
   );
 };
