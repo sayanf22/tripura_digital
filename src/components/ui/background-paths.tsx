@@ -30,7 +30,7 @@ function FloatingPaths({ position }: { position: number }) {
                         d={path.d}
                         stroke="currentColor"
                         strokeWidth={path.width}
-                        strokeOpacity={0.05 + path.id * 0.015} /* Lighter stroke for white background */
+                        strokeOpacity={0.05 + path.id * 0.015}
                         initial={{ pathLength: 0.3, opacity: 0.4 }}
                         animate={{
                             pathLength: 1,
@@ -63,7 +63,6 @@ export function BackgroundPaths({
                 <FloatingPaths position={-1} />
             </div>
 
-            {/* Smooth gradient fades to prevent hard cutoffs at section boundaries */}
             <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white to-transparent pointer-events-none z-0" />
             <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent pointer-events-none z-0" />
 
@@ -75,39 +74,41 @@ export function BackgroundPaths({
                     className="max-w-5xl mx-auto"
                 >
                     <h2 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-12 tracking-tighter leading-tight">
-                        {words.map((word, wordIndex) => (
-                            <span
-                                key={wordIndex}
-                                className="inline-block mr-4 last:mr-0"
-                            >
-                                {word.split("").map((letter, letterIndex) => (
-                                    <motion.span
-                                        key={`${wordIndex}-${letterIndex}`}
-                                        initial={{ y: 100, opacity: 0 }}
-                                        whileInView={{ y: 0, opacity: 1 }}
-                                        viewport={{ once: true }}
-                                        transition={{
-                                            delay:
-                                                wordIndex * 0.1 +
-                                                letterIndex * 0.03,
-                                            type: "spring",
-                                            stiffness: 150,
-                                            damping: 25,
-                                        }}
-                                        className="inline-block text-[#12387B]"
-                                    >
-                                        {letter}
-                                    </motion.span>
-                                ))}
-                            </span>
-                        ))}
+                        {words.map((word, wordIndex) => {
+                            const isPurpose = word.toUpperCase().includes("PURPOSE");
+                            return (
+                                <span
+                                    key={wordIndex}
+                                    className={`inline-block mx-[0.2em] md:mx-[0.25em] ${
+                                        isPurpose ? "text-[#3b82f6]" : "text-[#111]"
+                                    }`}
+                                >
+                                    {word.split("").map((letter, letterIndex) => (
+                                        <motion.span
+                                            key={`${wordIndex}-${letterIndex}`}
+                                            initial={{ y: 80, opacity: 0, filter: "blur(10px)" }}
+                                            whileInView={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                                            viewport={{ once: true, margin: "-100px" }}
+                                            transition={{
+                                                duration: 1.2,
+                                                delay: wordIndex * 0.15 + letterIndex * 0.05,
+                                                ease: [0.22, 1, 0.36, 1],
+                                            }}
+                                            className="inline-block"
+                                        >
+                                            {letter}
+                                        </motion.span>
+                                    ))}
+                                </span>
+                            );
+                        })}
                     </h2>
 
                     <div className="flex flex-col items-center justify-center gap-8 mt-12">
                         <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[#12387B]/90 font-bold tracking-[0.25em] text-sm md:text-lg uppercase">
-                            <motion.span initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.8 }} className="text-[#3b82f6]"><span className="text-[#12387B]">We Solve.</span></motion.span>
-                            <motion.span initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.95 }} className="text-[#3b82f6]"><span className="text-[#12387B]">We Build.</span></motion.span>
-                            <motion.span initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 1.1 }} className="text-[#3b82f6]"><span className="text-[#12387B]">We Deliver.</span></motion.span>
+                            <motion.span initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.8 }} className="cursor-default hover:text-[#CC2B2B] transition-colors">We Solve.</motion.span>
+                            <motion.span initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.95 }} className="cursor-default hover:text-[#CC2B2B] transition-colors">We Build.</motion.span>
+                            <motion.span initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 1.1 }} className="cursor-default hover:text-[#CC2B2B] transition-colors">We Deliver.</motion.span>
                         </div>
 
                         <motion.div
