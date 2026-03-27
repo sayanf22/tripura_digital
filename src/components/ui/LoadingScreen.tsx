@@ -139,15 +139,22 @@ export const LoadingScreen = ({ children }: LoadingScreenProps) => {
         )}
       </AnimatePresence>
 
-      {/* Main content — invisible until loader exits */}
-      <div
-        style={{
-          opacity: showLoader ? 0 : 1,
-          transition: 'opacity 0.5s ease',
+      {/* Main content — slides up from bottom with blur-to-sharp after loader */}
+      <motion.div
+        initial={{ opacity: 0, y: 60, filter: "blur(10px)" }}
+        animate={
+          showLoader
+            ? { opacity: 0, y: 60, filter: "blur(10px)" }
+            : { opacity: 1, y: 0, filter: "blur(0px)" }
+        }
+        transition={{
+          duration: 1.2,
+          ease: [0.22, 1, 0.36, 1],
+          delay: showLoader ? 0 : 0.1,
         }}
       >
         {children}
-      </div>
+      </motion.div>
     </>
   );
 };
