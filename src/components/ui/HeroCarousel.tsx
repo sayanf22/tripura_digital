@@ -29,6 +29,14 @@ export const HeroCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
 
+  // Preload all images into browser cache on first mount
+  useEffect(() => {
+    carouselData.forEach((slide) => {
+      const img = new Image();
+      img.src = slide.imageSrc;
+    });
+  }, []);
+
   useEffect(() => {
     const timer = setInterval(() => {
       setDirection(1);
