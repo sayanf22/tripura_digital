@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Globe, Search, Share2, Users, CheckCircle, Star, ChevronRight } from "lucide-react";
+import { ArrowRight, Globe, Search, Share2, Users, CheckCircle, Star, ChevronRight, Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HeroCarousel } from "@/components/ui/HeroCarousel";
 import AnimatedSection from "@/components/AnimatedSection";
 import Layout from "@/components/Layout";
 import { useCountUp } from "@/hooks/useCountUp";
@@ -63,54 +64,21 @@ const StatCard = ({ value, suffix, label }: { value: number; suffix: string; lab
 const Index = () => {
   return (
     <Layout>
-      {/* Hero — Image Background overriding Top */}
-      <section className="relative w-full h-[600px] lg:h-[700px] bg-muted/20">
-        <motion.img
-          initial={{ scale: 1.05, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
-          src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80"
-          alt="Woman smiling on phone"
-          className="absolute inset-0 w-full h-full object-cover object-top"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-
-        {/* The overlapping text box container */}
-        <div className="absolute -bottom-16 md:-bottom-24 left-0 right-0 z-10">
-          <div className="container mx-auto px-4 sm:px-6">
-            <div className="bg-[#12387B] max-w-4xl mx-auto rounded-xl shadow-2xl p-8 sm:p-12 md:p-16 text-center text-white border-b-4 border-navy/50">
-              <motion.h1
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.1 }}
-                className="font-display font-black text-3xl sm:text-4xl md:text-5xl lg:text-[64px] leading-tight tracking-tight uppercase"
-              >
-                <div className="overflow-hidden mb-2 md:mb-4"><motion.span initial={{ y: "100%" }} animate={{ y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }} className="block">Strong Digital</motion.span></div>
-                <div className="overflow-hidden mb-2 md:mb-4"><motion.span initial={{ y: "100%" }} animate={{ y: 0 }} transition={{ duration: 0.8, delay: 0.35, ease: [0.16, 1, 0.3, 1] }} className="block">Presence Starts</motion.span></div>
-                <div className="overflow-hidden mb-5 md:mb-8"><motion.span initial={{ y: "100%" }} animate={{ y: 0 }} transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }} className="block">With</motion.span></div>
-                <motion.span
-                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.7, ease: "easeOut" }}
-                  className="inline-block bg-[#CC2B2B] px-8 py-2 md:py-3 pb-3 md:pb-4"
-                >
-                  &nbsp;DESIGN&nbsp;
-                </motion.span>
-              </motion.h1>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* spacer to account for overlapping box */}
-      <div className="h-24 md:h-32 bg-background" />
+      {/* Carousel Hero Section */}
+      <HeroCarousel />
 
       {/* "Who we are?" Section */}
-      <section className="bg-background pt-8 pb-16 lg:pb-24 relative z-0">
+      <section className="bg-background py-20 lg:py-32 relative z-0">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            {/* Left Image Placeholder */}
-            <div className="aspect-square bg-muted/30 border border-border/50 rounded-2xl relative overflow-hidden group">
+            {/* Left Image */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-15%" }}
+              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+              className="aspect-square bg-muted/30 border border-border/50 rounded-2xl relative overflow-hidden group"
+            >
               <img
                 src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80"
                 alt="Our Team"
@@ -121,45 +89,90 @@ const Index = () => {
                   <svg className="w-8 h-8 ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            {/* Right Content */}
+            {/* Right Content — Each child animates one-by-one with blur */}
             <div className="pt-8 lg:pt-0">
-              <StaggeredTextReveal className="flex flex-col">
-                <h2 className="font-display font-extrabold text-3xl md:text-5xl text-foreground tracking-tight mb-8">Who we are?</h2>
-                <div className="space-y-6 text-foreground/80 leading-relaxed text-[17px]">
-                  <p className="font-bold text-lg md:text-xl text-foreground">Design. Build. Market. Repeat.</p>
-                  <ScrollRevealText text="We're a powerhouse delivering end-to-end solutions in Design, Marketing, and Technology." />
-                  <ScrollRevealText text="From world-class UI/UX and brand storytelling to full-scale digital campaigns and custom tech development — we help businesses scale with speed and style." />
-                  <p className="font-bold text-foreground pt-4">Let's Build Something Great!</p>
-                </div>
+              <StaggeredTextReveal className="flex flex-col gap-6">
+                <h2 className="font-display font-extrabold text-3xl md:text-5xl text-foreground tracking-tight">Who we are?</h2>
+                <p className="font-bold text-xl md:text-2xl text-foreground">Design. Build. Market. Repeat.</p>
+                <ScrollRevealText 
+                  text="We're a powerhouse delivering end-to-end solutions in Design, Marketing, and Technology." 
+                  scrollStart="start 85%"
+                  scrollEnd="start 50%"
+                />
+                <ScrollRevealText 
+                  text="From world-class UI/UX and brand storytelling to full-scale digital campaigns and custom tech development — we help businesses scale with speed and style." 
+                  scrollStart="start 60%"
+                  scrollEnd="start 20%"
+                />
+                <p className="font-bold text-lg text-[#CC2B2B]">Let's Build Something Great →</p>
               </StaggeredTextReveal>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Modern Minimalist Stats */}
-      <section className="py-16 bg-[#F8F9FA]">
+      {/* Huge Vertical Staggered Stats */}
+      <section className="py-24 bg-gradient-to-b from-white to-[#F8F9FA] overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 text-center lg:text-left">
-            <AnimatedSection delay={0.1}>
-              <div className="font-display text-4xl md:text-5xl lg:text-[54px] font-extrabold text-[#111]">150+</div>
-              <p className="text-[#333] font-bold text-xs sm:text-sm mt-3 uppercase tracking-wide">Business we helped to grow</p>
-            </AnimatedSection>
-            <AnimatedSection delay={0.2}>
-              <div className="font-display text-4xl md:text-5xl lg:text-[54px] font-extrabold text-[#111]">100+</div>
-              <p className="text-[#333] font-bold text-xs sm:text-sm mt-3 uppercase tracking-wide">Brand Projects we executed</p>
-            </AnimatedSection>
-            <AnimatedSection delay={0.3}>
-              <div className="font-display text-4xl md:text-5xl lg:text-[54px] font-extrabold text-[#111]">5+</div>
-              <p className="text-[#333] font-bold text-xs sm:text-sm mt-3 uppercase tracking-wide">Years of Experience</p>
-            </AnimatedSection>
-            <AnimatedSection delay={0.4}>
-              <div className="font-display text-4xl md:text-5xl lg:text-[54px] font-extrabold text-[#111]">10+</div>
-              <p className="text-[#333] font-bold text-xs sm:text-sm mt-3 uppercase tracking-wide">Nations Projects</p>
-            </AnimatedSection>
-          </div>
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={{
+                visible: { transition: { staggerChildren: 0.4 } },
+                hidden: {}
+              }}
+              className="grid grid-cols-1 gap-12 md:gap-16 max-w-4xl mx-auto"
+            >
+              {[
+                { num: "150+", title: "Businesses Accelerated", desc: "We have proudly partnered with over 150 businesses locally and internationally to scale their digital presence and exponentially boost their online revenue." },
+                { num: "100+", title: "Brand Projects Executed", desc: "Our creative team has masterminded and executed more than 100 transformational brand campaigns, delivering stunning, measurable results." },
+                { num: "5+", title: "Years of Experience", desc: "For over half a decade, we've honed our craft, keeping up with cutting-edge trends and adapting fast to the dynamic digital landscape." },
+                { num: "10+", title: "Nations Reached", desc: "Our high-impact digital solutions transcend borders, delivering excellence and scaling businesses spread across more than 10 nations worldwide." },
+              ].map((stat, i) => (
+                <motion.div
+                  key={i}
+                  variants={{
+                    hidden: { opacity: 0, y: 50 },
+                    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.25, 0.1, 0.25, 1] } }
+                  }}
+                  className="flex flex-col items-center bg-white p-10 md:p-14 lg:p-16 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] justify-center text-center hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-shadow duration-300 border border-border/10"
+                >
+                  <div className="font-display text-6xl md:text-7xl lg:text-[88px] font-black text-[#12387B] overflow-hidden leading-tight">
+                    <motion.div
+                      variants={{
+                        hidden: { y: "100%" },
+                        visible: { y: "0%", transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+                      }}
+                    >
+                      {stat.num}
+                    </motion.div>
+                  </div>
+                  <div className="overflow-hidden mt-6 text-center w-full">
+                    <motion.h3
+                      variants={{
+                        hidden: { y: "100%" },
+                        visible: { y: "0%", transition: { duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] } }
+                      }}
+                      className="text-[#111] font-extrabold text-2xl md:text-3xl tracking-tight mb-4"
+                    >
+                      {stat.title}
+                    </motion.h3>
+                    <motion.p
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        visible: { opacity: 1, y: 0, transition: { duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] } }
+                      }}
+                      className="text-[#555] text-base md:text-lg lg:text-xl leading-relaxed max-w-2xl mx-auto"
+                    >
+                      {stat.desc}
+                    </motion.p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
         </div>
       </section>
 

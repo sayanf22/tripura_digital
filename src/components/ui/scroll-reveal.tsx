@@ -6,15 +6,24 @@ interface ScrollRevealProps {
   text: string;
   className?: string;
   wordClassName?: string;
+  /** Where the animation starts relative to the viewport, e.g. "start 85%" */
+  scrollStart?: string;
+  /** Where the animation ends relative to the viewport, e.g. "start 40%" */
+  scrollEnd?: string;
 }
 
-export function ScrollRevealText({ text, className, wordClassName }: ScrollRevealProps) {
+export function ScrollRevealText({ 
+  text, 
+  className, 
+  wordClassName,
+  scrollStart = "start 85%",
+  scrollEnd = "start 40%",
+}: ScrollRevealProps) {
   const targetRef = useRef<HTMLParagraphElement>(null);
   
-  // We use useScroll to tie the animation directly to the user's scroll position
   const { scrollYProgress } = useScroll({
     target: targetRef,
-    offset: ["start 90%", "end 60%"],
+    offset: [scrollStart, scrollEnd] as any,
   });
 
   const words = text.split(" ");
@@ -23,7 +32,7 @@ export function ScrollRevealText({ text, className, wordClassName }: ScrollRevea
     <p ref={targetRef} className={cn("flex flex-wrap gap-x-[0.25em] gap-y-1", className)}>
       {words.map((word, i) => {
         const start = i / words.length;
-        const end = start + (1 / words.length);
+        const end = Math.min(start + 1.5 / words.length, 1);
         return (
           <Word key={i} progress={scrollYProgress} range={[start, end]} className={wordClassName}>
             {word}
@@ -45,19 +54,20 @@ const Word = ({
   range: [number, number];
   className?: string;
 }) => {
-  // Opacity transitions from 20% to 100% as the scroll hits the word's range
   const opacity = useTransform(progress, range, [0.15, 1]);
-  // We can also add a slight Y translation for a much more premium feel
-  const y = useTransform(progress, range, [10, 0]);
+  const y = useTransform(progress, range, [4, 0]);
   
   return (
-    <motion.span style={{ opacity, y }} className={cn("relative inline-block", className)}>
+    <motion.span 
+      style={{ opacity, y }} 
+      className={cn("relative inline-block", className)}
+    >
       {children}
     </motion.span>
   );
 };
 
-// Also export a container that reveals lines one by one as they come into view
+// Container that reveals children one by one as they scroll into view
 export function StaggeredTextReveal({ 
   children, 
   className 
@@ -66,15 +76,16 @@ export function StaggeredTextReveal({
   className?: string; 
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-10% 0px" });
+  // Only trigger when 30% of the element is visible, fires once
+  const isInView = useInView(ref, { once: true, margin: "-20% 0px -10% 0px" });
 
   const container = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.1,
+        staggerChildren: 0.2,
+        delayChildren: 0.15,
       }
     }
   };
@@ -92,12 +103,12 @@ export function StaggeredTextReveal({
         return (
           <motion.div
             variants={{
-              hidden: { opacity: 0, y: 20, filter: "blur(4px)" },
+              hidden: { opacity: 0, y: 30, filter: "blur(8px)" },
               visible: { 
                 opacity: 1, 
                 y: 0, 
                 filter: "blur(0px)",
-                transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } 
+                transition: { duration: 1, ease: [0.22, 1, 0.36, 1] } 
               }
             }}
           >
