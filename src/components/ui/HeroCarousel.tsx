@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLoadingComplete } from './LoadingScreen';
 
 const carouselData = [
   {
@@ -28,28 +29,33 @@ const carouselData = [
 export const HeroCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const isLoadingComplete = useLoadingComplete();
+  const [entranceDone, setEntranceDone] = useState(false);
 
-  // Preload all images into browser cache on first mount
+  // Preload images
   useEffect(() => {
     carouselData.forEach((slide) => {
       const img = new Image();
       img.src = slide.imageSrc;
     });
-    // After the entrance animation plays (~2.5s), mark first load done and start auto-play
-    const firstLoadTimer = setTimeout(() => setIsFirstLoad(false), 2500);
-    return () => clearTimeout(firstLoadTimer);
   }, []);
 
+  // When loading screen is done, play entrance for 3s then switch to carousel mode
   useEffect(() => {
-    // Don't auto-play until the entrance animation finishes
-    if (isFirstLoad) return;
+    if (!isLoadingComplete) return;
+    const timer = setTimeout(() => setEntranceDone(true), 3000);
+    return () => clearTimeout(timer);
+  }, [isLoadingComplete]);
+
+  // Auto-play only starts after entrance animation is done
+  useEffect(() => {
+    if (!entranceDone) return;
     const timer = setInterval(() => {
       setDirection(1);
       setCurrentIndex((prev) => (prev + 1) % carouselData.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [isFirstLoad]);
+  }, [entranceDone]);
 
   const goToSlide = (index: number) => {
     setDirection(index > currentIndex ? 1 : -1);
@@ -108,8 +114,9 @@ export const HeroCarousel = () => {
     exit: { opacity: 0, y: -30, filter: "blur(12px)", transition: { duration: 0.5 } }
   };
 
-  // Use entrance variants on first load, normal item variants after
-  const activeItemVariants = isFirstLoad ? entranceItemVariants : itemVariants;
+  // Show entrance animation only after loading is done and before carousel starts
+  const showEntrance = isLoadingComplete && !entranceDone;
+  const activeItemVariants = showEntrance ? entranceItemVariants : itemVariants;
 
   const slide = carouselData[currentIndex];
 
@@ -119,7 +126,7 @@ export const HeroCarousel = () => {
       {/* ── DESKTOP LAYOUT (md+) ── */}
       <div className="hidden md:flex relative min-h-[calc(100vh-80px)] min-h-[750px] flex-col justify-between">
         <div className="absolute inset-0 flex items-center justify-center p-8 lg:p-16">
-          {isFirstLoad ? (
+          {showEntrance ? (
             /* First load: entrance animation plays staggered items */
             <motion.div
               variants={entranceVariants}
@@ -235,7 +242,7 @@ export const HeroCarousel = () => {
 
       {/* ── MOBILE LAYOUT (below md) ── */}
       <div className="md:hidden flex flex-col items-center px-6 pt-4 pb-6">
-        {isFirstLoad ? (
+        {showEntrance ? (
           <motion.div
             variants={entranceVariants}
             initial="hidden"

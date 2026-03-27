@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const PRELOAD_IMAGES = [
@@ -25,6 +25,10 @@ function preloadImages(urls: string[]): Promise<void[]> {
 const BRAND_LINE_1 = "TRIPURA";
 const BRAND_LINE_2 = "DIGITAL TECHNOLOGIES";
 
+// Context so child components (like HeroCarousel) know when loading is done
+const LoadingContext = createContext(false);
+export const useLoadingComplete = () => useContext(LoadingContext);
+
 interface LoadingScreenProps {
   children: React.ReactNode;
 }
@@ -39,15 +43,14 @@ export const LoadingScreen = ({ children }: LoadingScreenProps) => {
       imagesReady.current = true;
     });
 
-    // Typing animation takes ~2s, then hold for 0.5s
     const typingDuration = (BRAND_LINE_1.length + BRAND_LINE_2.length) * 60 + 800;
 
     const exitTimer = setTimeout(() => {
       const doExit = () => {
-        // Step 1: Start fading out the loader (takes 1s)
+        // Fade out loader
         setShowLoader(false);
-        // Step 2: After loader is fully gone, reveal the page content
-        setTimeout(() => setContentReady(true), 400);
+        // After loader is gone, reveal page + signal children
+        setTimeout(() => setContentReady(true), 500);
       };
 
       if (imagesReady.current) {
@@ -57,7 +60,6 @@ export const LoadingScreen = ({ children }: LoadingScreenProps) => {
       }
     }, typingDuration);
 
-    // Safety: never block more than 5s
     const safety = setTimeout(() => {
       setShowLoader(false);
       setTimeout(() => setContentReady(true), 300);
@@ -70,30 +72,25 @@ export const LoadingScreen = ({ children }: LoadingScreenProps) => {
   }, []);
 
   return (
-    <>
-      {/* ── LOADER OVERLAY ── */}
+    <LoadingContext.Provider value={contentReady}>
+      {/* LOADER */}
       <AnimatePresence>
         {showLoader && (
           <motion.div
             key="loader"
             exit={{
               opacity: 0,
-              transition: { duration: 1, ease: [0.22, 1, 0.36, 1] },
+              transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
             }}
             className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white"
           >
-            {/* Line 1: TRIPURA */}
             <div className="flex overflow-hidden mb-1">
               {BRAND_LINE_1.split("").map((char, i) => (
                 <motion.span
                   key={`l1-${i}`}
                   initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
                   animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{
-                    duration: 0.5,
-                    delay: i * 0.06,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
+                  transition={{ duration: 0.5, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
                   className="text-4xl md:text-5xl font-black tracking-[0.15em] text-[#111] inline-block"
                 >
                   {char}
@@ -101,18 +98,13 @@ export const LoadingScreen = ({ children }: LoadingScreenProps) => {
               ))}
             </div>
 
-            {/* Line 2: DIGITAL TECHNOLOGIES */}
             <div className="flex overflow-hidden">
               {BRAND_LINE_2.split("").map((char, i) => (
                 <motion.span
                   key={`l2-${i}`}
                   initial={{ opacity: 0, y: 20, filter: "blur(6px)" }}
                   animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{
-                    duration: 0.4,
-                    delay: BRAND_LINE_1.length * 0.06 + 0.15 + i * 0.03,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
+                  transition={{ duration: 0.4, delay: BRAND_LINE_1.length * 0.06 + 0.15 + i * 0.03, ease: [0.22, 1, 0.36, 1] }}
                   className="text-xs md:text-sm font-bold tracking-[0.35em] text-[#12387B] inline-block"
                 >
                   {char === " " ? "\u00A0" : char}
@@ -120,37 +112,24 @@ export const LoadingScreen = ({ children }: LoadingScreenProps) => {
               ))}
             </div>
 
-            {/* Red accent line */}
             <motion.div
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
-              transition={{
-                duration: 0.8,
-                delay: (BRAND_LINE_1.length + BRAND_LINE_2.length) * 0.04 + 0.3,
-                ease: [0.22, 1, 0.36, 1],
-              }}
+              transition={{ duration: 0.8, delay: (BRAND_LINE_1.length + BRAND_LINE_2.length) * 0.04 + 0.3, ease: [0.22, 1, 0.36, 1] }}
               className="w-16 h-[2px] bg-[#CC2B2B] mt-6 origin-left"
             />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── PAGE CONTENT ── */}
-      {/* Starts hidden, then slowly rises from below with blur-to-sharp */}
+      {/* PAGE CONTENT — slides up slowly after loader finishes */}
       <motion.div
-        initial={{ opacity: 0, y: 80 }}
-        animate={
-          contentReady
-            ? { opacity: 1, y: 0 }
-            : { opacity: 0, y: 80 }
-        }
-        transition={{
-          duration: 1.6,
-          ease: [0.16, 1, 0.3, 1],
-        }}
+        initial={{ opacity: 0, y: 50 }}
+        animate={contentReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+        transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
       >
         {children}
       </motion.div>
-    </>
+    </LoadingContext.Provider>
   );
 };
